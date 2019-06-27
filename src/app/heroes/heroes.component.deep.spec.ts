@@ -2,22 +2,15 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NO_ERRORS_SCHEMA, Component, Input } from "@angular/core";
 import { HeroesComponent } from "./heroes.component";
 import { HeroService } from "../hero.service";
-import { of } from "rxjs";
 import { Hero } from "../hero";
+import { of } from "rxjs";
 import { By } from "@angular/platform-browser";
+import { HeroComponent } from "../hero/hero.component";
 
-describe('HeroComponent (shallow tests)', () => {
+describe('HeroComponent (deep tests)', () => {
     let fixture : ComponentFixture<HeroesComponent>;
     let mockHeroService;
     let HEROES;
-
-    @Component({
-        selector: 'app-hero',
-        template: '<div></div>'
-    })
-    class FakeHeroComponent {
-        @Input() hero: Hero;
-     }
 
     beforeEach(() => {
 
@@ -30,34 +23,32 @@ describe('HeroComponent (shallow tests)', () => {
         mockHeroService = jasmine.createSpyObj(['getHeroes', 'addHero', 'deleteHero']);
 
         TestBed.configureTestingModule({
-            declarations: [FakeHeroComponent, HeroesComponent],
+            declarations: [HeroesComponent, HeroComponent],
             providers: [
                 { provide: HeroService, useValue: mockHeroService }//When someone ask for a HeroService, give it the mock      
-            ]       
+            ],
+            schemas: [NO_ERRORS_SCHEMA]       
         });
 
         fixture = TestBed.createComponent(HeroesComponent);
-    });
-
-    it('should set heroes correctly from the service', () => {
-        //arrange
         mockHeroService.getHeroes.and.returnValue(of(HEROES));
 
-        //act
-        fixture.detectChanges(); //This fire lifecycles event to run, Ex. ngOnInit.
-
-        //assert
-        expect(fixture.componentInstance.heroes.length).toBe(3);
+        fixture.detectChanges();//Force the lifecycle for parent and children components
     });
 
-    it('should create one li for each hero', () => {
-        //arrange
-        mockHeroService.getHeroes.and.returnValue(of(HEROES));
-
+    it('should render each hero as a HeroComponent', () => {
+        
         //act
-        fixture.detectChanges(); //This fire lifecycles event to run, Ex. ngOnInit.
+        //This will find all the directives bound to the hero component
+        //because in fact, a component is a subclass of a directive. 
+        //DE = Debug Elements
+        const heroComponentsDEs = fixture.debugElement.queryAll(By.directive(HeroComponent));
 
         //assert
-        expect(fixture.debugElement.queryAll(By.css('li')).length).toBe(3);
-    });
+        expect(heroComponentsDEs.length).toEqual(3);
+        
+        for (let index = 0; index < heroComponentsDEs.length; index++) {
+            expect(heroComponentsDEs[index].componentInstance.hero).toEqual(HEROES[index]);            
+        }
+    })
 });
