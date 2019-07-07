@@ -63,8 +63,13 @@ describe('HeroComponent (deep tests)', () => {
         //Act
         //triggerEventHandler receives two parameters: the name of the method and the object that come along with that event.
         //We create the stopPropagation as a dummy method because that is what is happening inside the component.
-        heroComponentsDEs[0].query(By.css('button'))
-            .triggerEventHandler('click', { stopPropagation: () => {}});
+        // heroComponentsDEs[0].query(By.css('button')).triggerEventHandler('click', { stopPropagation: () => {}});
+
+        //this way we emit the event instead of forcing the click
+        //(<HeroComponent>heroComponentsDEs[0].componentInstance).delete.emit(undefined);
+
+        //but in order to test less, and only the boundaries between the two components we can trigger the delete event of the child one.
+        heroComponentsDEs[0].triggerEventHandler('delete', null);
 
         //Assert
         expect(fixture.componentInstance.delete).toHaveBeenCalledWith(HEROES[0]);
