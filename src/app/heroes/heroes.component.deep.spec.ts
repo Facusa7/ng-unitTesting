@@ -50,5 +50,24 @@ describe('HeroComponent (deep tests)', () => {
         for (let index = 0; index < heroComponentsDEs.length; index++) {
             expect(heroComponentsDEs[index].componentInstance.hero).toEqual(HEROES[index]);            
         }
-    })
+    });
+
+    it(`should call the heroService.deleteHero when the Hero component's delete button is clicked`, () =>{
+       
+        //Arrange
+        //Here we tell jasmine to 'watch' the delete method inside the component
+        spyOn(fixture.componentInstance, 'delete');
+
+        const heroComponentsDEs = fixture.debugElement.queryAll(By.directive(HeroComponent));
+
+        //Act
+        //triggerEventHandler receives two parameters: the name of the method and the object that come along with that event.
+        //We create the stopPropagation as a dummy method because that is what is happening inside the component.
+        heroComponentsDEs[0].query(By.css('button'))
+            .triggerEventHandler('click', { stopPropagation: () => {}});
+
+        //Assert
+        expect(fixture.componentInstance.delete).toHaveBeenCalledWith(HEROES[0]);
+        
+    });
 });
