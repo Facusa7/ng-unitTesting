@@ -6,6 +6,7 @@ import { Hero } from "../hero";
 import { of } from "rxjs";
 import { By } from "@angular/platform-browser";
 import { HeroComponent } from "../hero/hero.component";
+import { by } from "protractor";
 
 describe('HeroComponent (deep tests)', () => {
     let fixture : ComponentFixture<HeroesComponent>;
@@ -75,4 +76,23 @@ describe('HeroComponent (deep tests)', () => {
         expect(fixture.componentInstance.delete).toHaveBeenCalledWith(HEROES[0]);
         
     });
+
+    it('should add a new hero to the hero list when the add button is clicked', ()=>{
+        //Arrange
+        const name = "Mr. Frio";
+        mockHeroService.addHero.and.returnValue(of({id: 5, name: name, strength: 5}));
+        const inputElement = fixture.debugElement.query(By.css('input')).nativeElement;
+        const addButton = fixture.debugElement.queryAll(By.css('button'))[0]; //We already know that the first button is the 'add' one.
+
+        //act
+        inputElement.value = name; //inputElement is the actual DOM element
+        addButton.triggerEventHandler('click', null); // click 'add' and null as event object.
+        fixture.detectChanges(); //to force the execution of the bindings.
+
+        //Assert
+        const heroText = fixture.debugElement.query(By.css('ul')).nativeElement.textContent; //here we get all the strings concatenated. 
+        expect(heroText).toContain(name);
+
+
+    })
 });
