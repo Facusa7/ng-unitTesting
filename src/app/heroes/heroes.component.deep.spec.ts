@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { NO_ERRORS_SCHEMA, Component, Input } from "@angular/core";
+import { NO_ERRORS_SCHEMA, Component, Input, Directive } from "@angular/core";
 import { HeroesComponent } from "./heroes.component";
 import { HeroService } from "../hero.service";
 import { Hero } from "../hero";
@@ -7,6 +7,23 @@ import { of } from "rxjs";
 import { By } from "@angular/platform-browser";
 import { HeroComponent } from "../hero/hero.component";
 import { by } from "protractor";
+
+
+@Directive({
+    selector: '[routerLink]',
+    //listen to the click event on the parent DOM node,
+    //and when that event is fired, call my onClick method.
+    host: { '(click)': 'onClick()'} 
+})
+export class RouterLinkDirectiveStub {
+    //same name as the selector
+    @Input('routerLink') linkParams: any;
+    navigatedTo: any = null;
+
+    onClick() {
+        this.navigatedTo = this.linkParams;
+    }
+}
 
 describe('HeroComponent (deep tests)', () => {
     let fixture : ComponentFixture<HeroesComponent>;
@@ -24,11 +41,11 @@ describe('HeroComponent (deep tests)', () => {
         mockHeroService = jasmine.createSpyObj(['getHeroes', 'addHero', 'deleteHero']);
 
         TestBed.configureTestingModule({
-            declarations: [HeroesComponent, HeroComponent],
+            declarations: [HeroesComponent, HeroComponent, RouterLinkDirectiveStub],
             providers: [
                 { provide: HeroService, useValue: mockHeroService }//When someone ask for a HeroService, give it the mock      
             ],
-            schemas: [NO_ERRORS_SCHEMA]       
+            // schemas: [NO_ERRORS_SCHEMA]       
         });
 
         fixture = TestBed.createComponent(HeroesComponent);
@@ -92,7 +109,21 @@ describe('HeroComponent (deep tests)', () => {
         //Assert
         const heroText = fixture.debugElement.query(By.css('ul')).nativeElement.textContent; //here we get all the strings concatenated. 
         expect(heroText).toContain(name);
+    });
 
+    it('should have the correct route for the first hero', () => {
+        //arrange
+        const heroComponentsDEs = fixture.debugElement.queryAll(By.directive(HeroComponent));
 
-    })
+        //this is giving us the debug element for the anchor tag that has the router link on it.
+        let routerLink = heroComponentsDEs[0]
+        .query(By.directive(RouterLinkDirectiveStub))
+        .injector.get(RouterLinkDirectiveStub); //this returns the class of the diretive for the specific component I called.
+
+        //act
+        heroComponentsDEs[0].query(By.css('a')).triggerEventHandler('click', null);
+
+        //assert
+        expect(routerLink.navigatedTo).toBe('/detail/1');
+    });
 });
