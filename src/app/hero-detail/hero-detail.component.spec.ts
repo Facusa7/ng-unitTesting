@@ -1,4 +1,4 @@
-import { TestBed, ComponentFixture, fakeAsync, tick } from "@angular/core/testing";
+import { TestBed, ComponentFixture, fakeAsync, tick, flush } from "@angular/core/testing";
 import { HeroDetailComponent } from "./hero-detail.component";
 import { ActivatedRoute } from "@angular/router";
 import { HeroService } from "../hero.service";
@@ -71,7 +71,8 @@ describe('HeroDetailComponent', () => {
          fixture.componentInstance.save();
          //the reason we can do this is because Angular runs inside zone.js and the
          //fakeAsync method runs inside in a special kind of zone that allows us to control the clock
-         tick(250); //this moves forward 250 ms to simulate the waiting period. 
+         //tick(250); //this moves forward 250 ms to simulate the waiting period. 
+         flush(); //looks for any async code and moves the clock to the moment it finishes automatically.  
 
          //assert
          expect(mockHeroService.updateHero).toHaveBeenCalled();    
