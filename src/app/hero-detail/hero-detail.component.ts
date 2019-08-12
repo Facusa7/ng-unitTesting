@@ -34,7 +34,27 @@ export class HeroDetailComponent implements OnInit {
   }
 
  save(): void {
+   //if someone clicks save more than once in quarter of a second, the update method will be called just once
+   debounce(() => {
     this.heroService.updateHero(this.hero)
-      .subscribe(() => this.goBack());
+      .subscribe(() => this.goBack())
+    }, 250, false)();
   }
 }
+
+//debounce function makes sure that a another function does not get call to often. 
+function debounce(func, wait, immediate){
+  var timeout;
+  return function() {
+    var context = this, args = arguments;
+    var later = function(){
+      timeout = null;
+      if(!immediate) func.apply(context, args);
+    };
+    var callNow = immediate && !timeout;
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+    if(callNow) func.apply(context, args);
+  };
+};
+

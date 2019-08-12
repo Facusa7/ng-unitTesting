@@ -42,4 +42,22 @@ describe('HeroDetailComponent', () => {
         //assert
         expect(fixture.nativeElement.querySelector('h2').textContent).toContain('JOKER');
     })
+
+    //by adding the "done" parameter, we let Jasmine know that this is an async test and
+    //it will wait untill we call the "done" function before finishing up the test. 
+    it('should call updateHero when save is called', (done) => {
+        //arrange
+        mockHeroService.updateHero.and.returnValue(of({}));
+
+         //act
+         fixture.detectChanges();
+         fixture.componentInstance.save();
+
+         //assert
+         //wait 300 ms to assert since we added the debounce function. 
+         setTimeout(() => {
+            expect(mockHeroService.updateHero).toHaveBeenCalled();    
+            done();         
+         }, 300);
+    })
 });
