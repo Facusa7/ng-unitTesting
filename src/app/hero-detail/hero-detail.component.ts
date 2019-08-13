@@ -33,12 +33,20 @@ export class HeroDetailComponent implements OnInit {
     this.location.back();
   }
 
- save(): void {
-   //if someone clicks save more than once in quarter of a second, the update method will be called just once
-   debounce(() => {
-    this.heroService.updateHero(this.hero)
-      .subscribe(() => this.goBack())
-    }, 250, false)();
+//  save(): void {
+//    //if someone clicks save more than once in quarter of a second, the update method will be called just once
+//    debounce(() => {
+//     this.heroService.updateHero(this.hero)
+//       .subscribe(() => this.goBack())
+//     }, 250, false)();
+//   }
+// }
+
+  save(): void {
+    var p = new Promise((resolve) => {
+      this.heroService.updateHero(this.hero).subscribe(() => this.goBack());
+      resolve();
+    });
   }
 }
 
