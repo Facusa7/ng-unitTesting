@@ -1,4 +1,4 @@
-# Pluralsight's Unit Testing in Angular Course
+# Pluralsight's Unit Testing in Angular Course for the people
 This course is up to date.
 
 To get started, clone the repo or download it
